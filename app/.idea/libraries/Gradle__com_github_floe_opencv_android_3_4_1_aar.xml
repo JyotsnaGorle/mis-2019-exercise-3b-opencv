@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="Gradle: com.github.floe:opencv-android:3.4.1@aar">
+    <CLASSES>
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/c00883bbc0fd7be0905166c57609ca6a/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/c00883bbc0fd7be0905166c57609ca6a/jars/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
