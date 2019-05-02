@@ -15,24 +15,18 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
-import org.opencv.osgi.OpenCVInterface;
-import org.opencv.osgi.OpenCVNativeLoader;
 
 import android.Manifest;
-import android.app.Activity;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceView;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -47,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
     private boolean                 mIsJavaCamera = true;
     private MenuItem                mItemSwitchCamera = null;
     Mat tmp;
-    CascadeClassifier cascadeClassifier;
+    CascadeClassifier faceCascade;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -56,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
                 case LoaderCallbackInterface.SUCCESS:
                 {
                     Log.i(TAG, "OpenCV loaded successfully");
-                    cascadeClassifier = new CascadeClassifier(initAssetFile("haarcascade_frontalface_default.xml"));
+                    faceCascade = new CascadeClassifier(initAssetFile("haarcascade_frontalface_default.xml", R.raw.haarcascade_frontalface_default));
                     mOpenCvCameraView.enableView();
                 } break;
                 default:
@@ -121,7 +115,6 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
     }
 
     public void onCameraViewStarted(int width, int height) {
-        CascadeClassifier frontFace = new CascadeClassifier(initAssetFile("haarcascade_frontalface_default.xml"));
 
     }
 
@@ -145,33 +138,31 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         Mat gray = inputFrame.gray();
         Mat col  = inputFrame.rgba();
 
-        Mat clone = gray.clone();
+        Mat clone = col.clone();
 //        Imgproc.Canny(gray, clone, 80, 100);
-        Imgproc.cvtColor(clone, col, Imgproc.COLOR_GRAY2RGBA, 4);
+//        Imgproc.cvtColor(clone, col, Imgproc.COLOR_GRAY2RGBA, 4);
 
-        tmp = clone.t();
+        tmp = col.t();
         Core.flip(clone.t(), tmp, 1);
         Imgproc.resize(tmp, tmp, clone.size());
         clone.release();
 
-        MatOfRect rects = new MatOfRect();
-        cascadeClassifier.detectMultiScale(tmp, rects,1.1, 3, 3, new Size(5, 5), new Size() );
-        Log.d("Rects", rects.toString());
-        for(Rect r: rects.toArray()) {
-//            Rect foo = new Rect(new Point(100,100), new Point(200,200));
-//            Imgproc.rectangle(tmp, r.tl(), r.br(), new Scalar(0, 0, 255), 3);
-            Rect foo = new Rect(new Point(100,100), new Point(200,200));
-            Imgproc.rectangle(tmp, foo.tl(), foo.br(), new Scalar(0, 0, 255), 3);
-        }
+        MatOfRect faceRects = new MatOfRect();
 
+        faceCascade.detectMultiScale(tmp, faceRects);
+
+        for(Rect r: faceRects.toArray()) {
+            Imgproc.rectangle(tmp, r.tl(), r.br(),new Scalar(0, 0, 255), 3);
+            Imgproc.circle(tmp, new Point(r.tl().x + r.width/2, r.tl().y + r.height/2), r.height/4, new Scalar(255, 0, 0), 4);
+        }
         return tmp;
     }
 
 
-    public String initAssetFile(String filename)  {
+    public String initAssetFile(String filename, int resourceID)  {
         File file = new File(getFilesDir(), filename);
         if (!file.exists()) try {
-            InputStream is = getResources().openRawResource(R.raw.haarcascade_frontalface_default);
+            InputStream is = getResources().openRawResource(resourceID);
 //                    getAssets().open(filename);
             File cascadeDir = getDir("cascade", MODE_PRIVATE);
             File mCascadeFile = new File(cascadeDir, filename);
