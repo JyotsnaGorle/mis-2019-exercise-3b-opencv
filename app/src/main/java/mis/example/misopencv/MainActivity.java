@@ -123,24 +123,16 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
 
     public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 
-        //return inputFrame.rgba();
-
-//        Mat col  = inputFrame.rgba();
-//        tmp = col.t();
-//        Core.flip(col.t(), tmp, 1);
-//        Imgproc.resize(tmp, tmp, col.size());
-//        Rect foo = new Rect(new Point(100,100), new Point(200,200));
-//        Imgproc.rectangle(tmp, foo.tl(), foo.br(), new Scalar(0, 0, 255), 3);
-//        col.release();
-//        return tmp;
-
-
         Mat gray = inputFrame.gray();
         Mat col  = inputFrame.rgba();
 
         Mat clone = col.clone();
 //        Imgproc.Canny(gray, clone, 80, 100);
+        // source : https://docs.opencv.org/3.4.1/d7/d8b/tutorial_py_face_detection.html
+
 //        Imgproc.cvtColor(clone, col, Imgproc.COLOR_GRAY2RGBA, 4);
+
+        // source : https://stackoverflow.com/questions/16669779/opencv-camera-orientation-issue
 
         tmp = col.t();
         Core.flip(clone.t(), tmp, 1);
@@ -162,8 +154,8 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
     public String initAssetFile(String filename, int resourceID)  {
         File file = new File(getFilesDir(), filename);
         if (!file.exists()) try {
+            // source: https://www.mirkosertic.de/blog/2013/07/realtime-face-detection-on-android-using-opencv/
             InputStream is = getResources().openRawResource(resourceID);
-//                    getAssets().open(filename);
             File cascadeDir = getDir("cascade", MODE_PRIVATE);
             File mCascadeFile = new File(cascadeDir, filename);
             OutputStream os = new FileOutputStream(mCascadeFile);
