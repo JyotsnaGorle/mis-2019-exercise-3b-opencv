@@ -145,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
 
         for(Rect r: faceRects.toArray()) {
             Imgproc.rectangle(tmp, r.tl(), r.br(),new Scalar(0, 0, 255), 3);
+            // calculate the center of the face by trying to draw a circle around the center of the frontal face rect.
             Imgproc.circle(tmp, new Point(r.tl().x + r.width/2, r.tl().y + r.height/2), r.height/4, new Scalar(255, 0, 0), 4);
         }
         return tmp;
